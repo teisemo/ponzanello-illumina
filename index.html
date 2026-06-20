@@ -211,7 +211,10 @@
   function renderLoggedOut() {
     authArea.innerHTML = `<button class="back-btn" id="login-btn">Accedi con Google</button>`;
     document.getElementById('login-btn').addEventListener('click', () => {
-      supabase.auth.signInWithOAuth({ provider: 'google' });
+      supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: window.location.origin + window.location.pathname }
+      });
     });
     adminArea.style.display = 'none';
     adminArea.innerHTML = '';
