@@ -420,6 +420,13 @@
     border-radius: 8px;
   }
   #auth-area { margin-top: 26px; }
+  .admin-edit { display: block; }
+  .edit-form { width: 100%; }
+  .edit-form button[data-cancel] {
+    color: var(--gold);
+    background: transparent;
+    border: 1px solid var(--gold-soft);
+  }
 
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation: none !important; transition: none !important; }
@@ -630,19 +637,59 @@
     renderAdminList();
   }
 
-  async function renderAdminList() {
+  async function renderAdminList(editingId = null) {
     const { data } = await supabase.from('menu_items').select('*').order('categoria').order('nome');
     const list = document.getElementById('admin-list');
     if (!list) return;
-    list.innerHTML = '<h3>Voci esistenti</h3>' + (data || []).map(item => `
+    list.innerHTML = '<h3>Voci esistenti</h3>' + (data || []).map(item => {
+      if (item.id === editingId) {
+        return `
+      <div class="menu-item admin-edit">
+        <form class="edit-form" data-edit-form="${item.id}">
+          <input name="categoria" value="${escapeHtml(item.categoria)}" placeholder="Categoria" required>
+          <input name="nome" value="${escapeHtml(item.nome)}" placeholder="Nome" required>
+          <textarea name="descrizione" placeholder="Descrizione (opzionale)">${escapeHtml(item.descrizione || '')}</textarea>
+          <input name="prezzo" type="number" step="0.01" value="${Number(item.prezzo)}" placeholder="Prezzo" required>
+          <label><input type="checkbox" name="disponibile" ${item.disponibile ? 'checked' : ''}> Disponibile</label>
+          <div>
+            <button type="submit">Salva</button>
+            <button type="button" data-cancel>Annulla</button>
+          </div>
+        </form>
+      </div>`;
+      }
+      return `
       <div class="menu-item">
         <span>${escapeHtml(item.categoria)} — ${escapeHtml(item.nome)} (${Number(item.prezzo).toFixed(2)})</span>
         <span>
+          <button data-edit="${item.id}">Modifica</button>
           <button data-toggle="${item.id}" data-available="${item.disponibile}">${item.disponibile ? 'Segna esaurito' : 'Segna disponibile'}</button>
           <button data-delete="${item.id}">Elimina</button>
         </span>
-      </div>
-    `).join('');
+      </div>`;
+    }).join('');
+
+    list.querySelectorAll('[data-edit]').forEach(btn => {
+      btn.addEventListener('click', () => renderAdminList(Number(btn.dataset.edit)));
+    });
+    list.querySelectorAll('[data-cancel]').forEach(btn => {
+      btn.addEventListener('click', () => renderAdminList());
+    });
+    list.querySelectorAll('[data-edit-form]').forEach(form => {
+      form.addEventListener('submit', async e => {
+        e.preventDefault();
+        const id = form.dataset.editForm;
+        await supabase.from('menu_items').update({
+          categoria: form.categoria.value,
+          nome: form.nome.value,
+          descrizione: form.descrizione.value || null,
+          prezzo: parseFloat(form.prezzo.value),
+          disponibile: form.disponibile.checked
+        }).eq('id', id);
+        await loadMenu();
+        await renderAdminList();
+      });
+    });
 
     list.querySelectorAll('[data-toggle]').forEach(btn => {
       btn.addEventListener('click', async () => {
