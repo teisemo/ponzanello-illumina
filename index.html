@@ -515,8 +515,23 @@
 </div>
 
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script type="module">
-  import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+  // La navigazione tra le sezioni funziona sempre, anche se la libreria dati non si carica
+  document.querySelectorAll('[data-target]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      document.getElementById(btn.dataset.target).classList.add('active');
+      window.scrollTo(0, 0);
+    });
+  });
+
+  const { createClient } = window.supabase || {};
+  if (!createClient) {
+    document.getElementById('menu-content').textContent =
+      'Impossibile caricare il menù: libreria non disponibile. Controlla la connessione (o eventuali blocchi di rete/estensioni) e ricarica la pagina.';
+    throw new Error('supabase-js non caricato');
+  }
 
   const SUPABASE_URL = 'https://nkxsnjogaslhkgtglkuw.supabase.co';
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5reHNuam9nYXNsaGtndGdsa3V3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE5NjQxMDIsImV4cCI6MjA5NzU0MDEwMn0.Yz5lZRUZnsEv_zBybBFAtSPiEwPzbMmFrLdM2TPS0o0';
@@ -529,27 +544,29 @@
 
   const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  document.querySelectorAll('[data-target]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-      document.getElementById(btn.dataset.target).classList.add('active');
-      window.scrollTo(0, 0);
-    });
-  });
+  function withTimeout(promise, ms) {
+    return Promise.race([
+      Promise.resolve(promise),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), ms))
+    ]);
+  }
 
   function escapeHtml(str) {
     return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   }
 
   async function loadMenu() {
-    const { data, error } = await supabase
-      .from('menu_items')
-      .select('*')
-      .order('categoria')
-      .order('ordine')
-      .order('nome');
-
     const container = document.getElementById('menu-content');
+    let data, error;
+    try {
+      ({ data, error } = await withTimeout(
+        supabase.from('menu_items').select('*').order('categoria').order('ordine').order('nome'),
+        12000
+      ));
+    } catch (e) {
+      container.textContent = 'Errore di connessione nel caricamento del menù. Riprova più tardi.';
+      return;
+    }
     if (error) {
       container.textContent = 'Errore nel caricamento del menù.';
       return;
