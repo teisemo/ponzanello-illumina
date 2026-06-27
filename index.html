@@ -553,6 +553,14 @@
 
   const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+  // Client solo-lettura per il menù pubblico: usa SEMPRE la anon key e non tocca la
+  // sessione salvata. Evita che un token di login scaduto/corrotto in localStorage
+  // venga allegato alle letture facendole fallire con 401 (problema visibile solo
+  // nel browser "normale" dove la sessione è persistita, non in incognito).
+  const supabasePublic = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    auth: { persistSession: false, autoRefreshToken: false }
+  });
+
   function withTimeout(promise, ms) {
     return Promise.race([
       Promise.resolve(promise),
@@ -620,7 +628,7 @@
     let data, error;
     try {
       ({ data, error } = await withTimeout(
-        supabase.from('menu_items').select('*').order('categoria').order('ordine').order('nome'),
+        supabasePublic.from('menu_items').select('*').order('categoria').order('ordine').order('nome'),
         12000
       ));
     } catch (e) {
