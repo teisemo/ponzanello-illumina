@@ -1,5 +1,205 @@
 [
  {
+  "id": 8,
+  "categoria": "PRIMI",
+  "nome": "RAVIOLI ALLA PONZANELLESE",
+  "descrizione": null,
+  "prezzo": 8.0,
+  "disponibile": true,
+  "ordine": 0,
+  "created_at": "2026-06-26T17:34:13.183015+00:00"
+ },
+ {
+  "id": 6,
+  "categoria": "PRIMI",
+  "nome": "TESTAROI AL PESTO",
+  "descrizione": null,
+  "prezzo": 5.0,
+  "disponibile": true,
+  "ordine": 0,
+  "created_at": "2026-06-26T17:33:25.45185+00:00"
+ },
+ {
+  "id": 7,
+  "categoria": "PRIMI",
+  "nome": "TESTAROI OLIO&FORMAGGIO",
+  "descrizione": null,
+  "prezzo": 5.0,
+  "disponibile": true,
+  "ordine": 0,
+  "created_at": "2026-06-26T17:33:51.552431+00:00"
+ },
+ {
+  "id": 19,
+  "categoria": "SECONDI",
+  "nome": "ASADO AL PIATTO",
+  "descrizione": null,
+  "prezzo": 15.0,
+  "disponibile": true,
+  "ordine": 0,
+  "created_at": "2026-06-26T17:40:09.947344+00:00"
+ },
+ {
+  "id": 21,
+  "categoria": "SECONDI",
+  "nome": "PANINO CON LA PORCHETTA",
+  "descrizione": null,
+  "prezzo": 5.0,
+  "disponibile": true,
+  "ordine": 0,
+  "created_at": "2026-06-26T17:40:39.154783+00:00"
+ },
+ {
+  "id": 20,
+  "categoria": "SECONDI",
+  "nome": "PORCHETTA",
+  "descrizione": null,
+  "prezzo": 9.0,
+  "disponibile": true,
+  "ordine": 0,
+  "created_at": "2026-06-26T17:40:27.567369+00:00"
+ },
+ {
+  "id": 23,
+  "categoria": "VEGANO",
+  "nome": "PIATTO VEGANO",
+  "descrizione": null,
+  "prezzo": 5.0,
+  "disponibile": true,
+  "ordine": 0,
+  "created_at": "2026-06-26T17:41:16.872945+00:00"
+ },
+ {
+  "id": 22,
+  "categoria": "CONTORNI",
+  "nome": "PATATINE FRITTE",
+  "descrizione": null,
+  "prezzo": 3.0,
+  "disponibile": true,
+  "ordine": 0,
+  "created_at": "2026-06-26T17:41:02.700144+00:00"
+ },
+ {
+  "id": 14,
+  "categoria": "FOCACCETTE",
+  "nome": "FOCACCETTA CON IL CHIODO DI MAIALE",
+  "descrizione": null,
+  "prezzo": 6.0,
+  "disponibile": true,
+  "ordine": 0,
+  "created_at": "2026-06-26T17:38:14.51725+00:00"
+ },
+ {
+  "id": 11,
+  "categoria": "FOCACCETTE",
+  "nome": "FOCACCETTA CON IL SALAME",
+  "descrizione": null,
+  "prezzo": 4.0,
+  "disponibile": true,
+  "ordine": 0,
+  "created_at": "2026-06-26T17:35:50.455035+00:00"
+ },
+ {
+  "id": 13,
+  "categoria": "FOCACCETTE",
+  "nome": "FOCACCETTA CON LA PANCETTA",
+  "descrizione": null,
+  "prezzo": 4.0,
+  "disponibile": true,
+  "ordine": 0,
+  "created_at": "2026-06-26T17:37:41.029185+00:00"
+ },
+ {
+  "id": 12,
+  "categoria": "FOCACCETTE",
+  "nome": "FOCACCETTA CON LO STRACCHINO",
+  "descrizione": null,
+  "prezzo": 4.0,
+  "disponibile": true,
+  "ordine": 0,
+  "created_at": "2026-06-26T17:36:11.782317+00:00"
+ },
+ {
+  "id": 17,
+  "categoria": "SGABEI",
+  "nome": "SGABEO CON IL CRUDO",
+  "descrizione": null,
+  "prezzo": 3.0,
+  "disponibile": true,
+  "ordine": 0,
+  "created_at": "2026-06-26T17:39:17.006337+00:00"
+ },
+ {
+  "id": 10,
+  "categoria": "SGABEI",
+  "nome": "SGABEO CON IL SALAME",
+  "descrizione": null,
+  "prezzo": 3.0,
+  "disponibile": true,
+  "ordine": 0,
+  "created_at": "2026-06-26T17:35:11.187255+00:00"
+ },
+ {
+  "id": 18,
+  "categoria": "SGABEI",
+  "nome": "SGABEO CON LA NUTELLA",
+  "descrizione": null,
+  "prezzo": 3.0,
+  "disponibile": true,
+  "ordine": 0,
+  "created_at": "2026-06-26T17:39:29.67272+00:00"
+ },
+ {
+  "id": 16,
+  "categoria": "SGABEI",
+  "nome": "SGABEO CON LA PANCETTA",
+  "descrizione": null,
+  "prezzo": 3.0,
+  "disponibile": true,
+  "ordine": 0,
+  "created_at": "2026-06-26T17:39:05.289938+00:00"
+ },
+ {
+  "id": 15,
+  "categoria": "SGABEI",
+  "nome": "SGABEO CON LO STRACCHINO",
+  "descrizione": null,
+  "prezzo": 3.0,
+  "disponibile": true,
+  "ordine": 0,
+  "created_at": "2026-06-26T17:38:49.759012+00:00"
+ },
+ {
+  "id": 9,
+  "categoria": "SGABEI",
+  "nome": "SGABEO VUOTO",
+  "descrizione": null,
+  "prezzo": 1.0,
+  "disponibile": true,
+  "ordine": 0,
+  "created_at": "2026-06-26T17:34:36.505791+00:00"
+ },
+ {
+  "id": 25,
+  "categoria": "TORTE",
+  "nome": "3 FETTE DI TORTA DOLCE",
+  "descrizione": null,
+  "prezzo": 4.0,
+  "disponibile": true,
+  "ordine": 0,
+  "created_at": "2026-06-26T17:41:48.495285+00:00"
+ },
+ {
+  "id": 24,
+  "categoria": "TORTE",
+  "nome": "3 FETTE DI TORTA SALATA",
+  "descrizione": null,
+  "prezzo": 4.0,
+  "disponibile": true,
+  "ordine": 0,
+  "created_at": "2026-06-26T17:41:38.909921+00:00"
+ },
+ {
   "id": 26,
   "categoria": "BEVANDE",
   "nome": "ACQUA IN BOTTIGLIA 1/2 LITRO",
@@ -50,6 +250,26 @@
   "created_at": "2026-06-26T17:43:36.700181+00:00"
  },
  {
+  "id": 32,
+  "categoria": "VINO",
+  "nome": "BICCHIERE",
+  "descrizione": null,
+  "prezzo": 2.0,
+  "disponibile": true,
+  "ordine": 0,
+  "created_at": "2026-06-26T17:44:24.219659+00:00"
+ },
+ {
+  "id": 31,
+  "categoria": "VINO",
+  "nome": "BOTTIGLIA",
+  "descrizione": "3 SESTERZI DI CAUZIONE PER LA BOTTIGLIA",
+  "prezzo": 7.0,
+  "disponibile": true,
+  "ordine": 0,
+  "created_at": "2026-06-26T17:44:14.703393+00:00"
+ },
+ {
   "id": 33,
   "categoria": "CAFFE",
   "nome": "CAFFE",
@@ -68,6 +288,36 @@
   "disponibile": true,
   "ordine": 0,
   "created_at": "2026-06-26T17:44:54.931542+00:00"
+ },
+ {
+  "id": 35,
+  "categoria": "DIGESTIVI",
+  "nome": "AMARO",
+  "descrizione": null,
+  "prezzo": 3.0,
+  "disponibile": true,
+  "ordine": 0,
+  "created_at": "2026-06-26T17:45:10.187496+00:00"
+ },
+ {
+  "id": 37,
+  "categoria": "DIGESTIVI",
+  "nome": "GRAPPA",
+  "descrizione": null,
+  "prezzo": 3.0,
+  "disponibile": true,
+  "ordine": 0,
+  "created_at": "2026-06-26T17:45:29.301718+00:00"
+ },
+ {
+  "id": 36,
+  "categoria": "DIGESTIVI",
+  "nome": "LIMONCINO",
+  "descrizione": null,
+  "prezzo": 3.0,
+  "disponibile": true,
+  "ordine": 0,
+  "created_at": "2026-06-26T17:45:20.805897+00:00"
  },
  {
   "id": 50,
@@ -238,255 +488,5 @@
   "disponibile": true,
   "ordine": 0,
   "created_at": "2026-06-26T17:46:13.680955+00:00"
- },
- {
-  "id": 22,
-  "categoria": "CONTORNI",
-  "nome": "PATATINE FRITTE",
-  "descrizione": null,
-  "prezzo": 3.0,
-  "disponibile": true,
-  "ordine": 0,
-  "created_at": "2026-06-26T17:41:02.700144+00:00"
- },
- {
-  "id": 35,
-  "categoria": "DIGESTIVI",
-  "nome": "AMARO",
-  "descrizione": null,
-  "prezzo": 3.0,
-  "disponibile": true,
-  "ordine": 0,
-  "created_at": "2026-06-26T17:45:10.187496+00:00"
- },
- {
-  "id": 37,
-  "categoria": "DIGESTIVI",
-  "nome": "GRAPPA",
-  "descrizione": null,
-  "prezzo": 3.0,
-  "disponibile": true,
-  "ordine": 0,
-  "created_at": "2026-06-26T17:45:29.301718+00:00"
- },
- {
-  "id": 36,
-  "categoria": "DIGESTIVI",
-  "nome": "LIMONCINO",
-  "descrizione": null,
-  "prezzo": 3.0,
-  "disponibile": true,
-  "ordine": 0,
-  "created_at": "2026-06-26T17:45:20.805897+00:00"
- },
- {
-  "id": 14,
-  "categoria": "FOCACCETTE",
-  "nome": "FOCACCETTA CON IL CHIODO DI MAIALE",
-  "descrizione": null,
-  "prezzo": 6.0,
-  "disponibile": true,
-  "ordine": 0,
-  "created_at": "2026-06-26T17:38:14.51725+00:00"
- },
- {
-  "id": 11,
-  "categoria": "FOCACCETTE",
-  "nome": "FOCACCETTA CON IL SALAME",
-  "descrizione": null,
-  "prezzo": 4.0,
-  "disponibile": true,
-  "ordine": 0,
-  "created_at": "2026-06-26T17:35:50.455035+00:00"
- },
- {
-  "id": 13,
-  "categoria": "FOCACCETTE",
-  "nome": "FOCACCETTA CON LA PANCETTA",
-  "descrizione": null,
-  "prezzo": 4.0,
-  "disponibile": true,
-  "ordine": 0,
-  "created_at": "2026-06-26T17:37:41.029185+00:00"
- },
- {
-  "id": 12,
-  "categoria": "FOCACCETTE",
-  "nome": "FOCACCETTA CON LO STRACCHINO",
-  "descrizione": null,
-  "prezzo": 4.0,
-  "disponibile": true,
-  "ordine": 0,
-  "created_at": "2026-06-26T17:36:11.782317+00:00"
- },
- {
-  "id": 7,
-  "categoria": "PRIMI",
-  "nome": "OLIO&FORMAGGIO",
-  "descrizione": null,
-  "prezzo": 5.0,
-  "disponibile": true,
-  "ordine": 0,
-  "created_at": "2026-06-26T17:33:51.552431+00:00"
- },
- {
-  "id": 8,
-  "categoria": "PRIMI",
-  "nome": "RAVIOLI ALLA PONZANELLESE",
-  "descrizione": null,
-  "prezzo": 9.0,
-  "disponibile": true,
-  "ordine": 0,
-  "created_at": "2026-06-26T17:34:13.183015+00:00"
- },
- {
-  "id": 6,
-  "categoria": "PRIMI",
-  "nome": "TESTAROI AL PESTO",
-  "descrizione": null,
-  "prezzo": 5.0,
-  "disponibile": true,
-  "ordine": 0,
-  "created_at": "2026-06-26T17:33:25.45185+00:00"
- },
- {
-  "id": 19,
-  "categoria": "SECONDI",
-  "nome": "ASADO AL PIATTO",
-  "descrizione": null,
-  "prezzo": 15.0,
-  "disponibile": true,
-  "ordine": 0,
-  "created_at": "2026-06-26T17:40:09.947344+00:00"
- },
- {
-  "id": 21,
-  "categoria": "SECONDI",
-  "nome": "PANINO CON LA PORCHETTA",
-  "descrizione": null,
-  "prezzo": 5.0,
-  "disponibile": true,
-  "ordine": 0,
-  "created_at": "2026-06-26T17:40:39.154783+00:00"
- },
- {
-  "id": 20,
-  "categoria": "SECONDI",
-  "nome": "PORCHETTA",
-  "descrizione": null,
-  "prezzo": 9.0,
-  "disponibile": true,
-  "ordine": 0,
-  "created_at": "2026-06-26T17:40:27.567369+00:00"
- },
- {
-  "id": 17,
-  "categoria": "SGABEI",
-  "nome": "SGABEO CON IL CRUDO",
-  "descrizione": null,
-  "prezzo": 4.0,
-  "disponibile": true,
-  "ordine": 0,
-  "created_at": "2026-06-26T17:39:17.006337+00:00"
- },
- {
-  "id": 10,
-  "categoria": "SGABEI",
-  "nome": "SGABEO CON IL SALAME",
-  "descrizione": null,
-  "prezzo": 4.0,
-  "disponibile": true,
-  "ordine": 0,
-  "created_at": "2026-06-26T17:35:11.187255+00:00"
- },
- {
-  "id": 18,
-  "categoria": "SGABEI",
-  "nome": "SGABEO CON LA NUTELLA",
-  "descrizione": null,
-  "prezzo": 4.0,
-  "disponibile": true,
-  "ordine": 0,
-  "created_at": "2026-06-26T17:39:29.67272+00:00"
- },
- {
-  "id": 16,
-  "categoria": "SGABEI",
-  "nome": "SGABEO CON LA PANCETTA",
-  "descrizione": null,
-  "prezzo": 4.0,
-  "disponibile": true,
-  "ordine": 0,
-  "created_at": "2026-06-26T17:39:05.289938+00:00"
- },
- {
-  "id": 15,
-  "categoria": "SGABEI",
-  "nome": "SGABEO CON LO STRACCHINO",
-  "descrizione": null,
-  "prezzo": 4.0,
-  "disponibile": true,
-  "ordine": 0,
-  "created_at": "2026-06-26T17:38:49.759012+00:00"
- },
- {
-  "id": 9,
-  "categoria": "SGABEI",
-  "nome": "SGABEO VUOTO",
-  "descrizione": null,
-  "prezzo": 2.0,
-  "disponibile": true,
-  "ordine": 0,
-  "created_at": "2026-06-26T17:34:36.505791+00:00"
- },
- {
-  "id": 25,
-  "categoria": "TORTE",
-  "nome": "3 FETTE DI TORTA DOLCE",
-  "descrizione": null,
-  "prezzo": 4.0,
-  "disponibile": true,
-  "ordine": 0,
-  "created_at": "2026-06-26T17:41:48.495285+00:00"
- },
- {
-  "id": 24,
-  "categoria": "TORTE",
-  "nome": "3 FETTE DI TORTA SALATA",
-  "descrizione": null,
-  "prezzo": 4.0,
-  "disponibile": true,
-  "ordine": 0,
-  "created_at": "2026-06-26T17:41:38.909921+00:00"
- },
- {
-  "id": 23,
-  "categoria": "VEGANO",
-  "nome": "PIATTO VEGANO",
-  "descrizione": null,
-  "prezzo": 5.0,
-  "disponibile": true,
-  "ordine": 0,
-  "created_at": "2026-06-26T17:41:16.872945+00:00"
- },
- {
-  "id": 32,
-  "categoria": "VINO",
-  "nome": "BICCHIERE",
-  "descrizione": null,
-  "prezzo": 2.0,
-  "disponibile": true,
-  "ordine": 0,
-  "created_at": "2026-06-26T17:44:24.219659+00:00"
- },
- {
-  "id": 31,
-  "categoria": "VINO",
-  "nome": "BOTTIGLIA",
-  "descrizione": "3 SESTERZI DI CAUZIONE PER LA BOTTIGLIA",
-  "prezzo": 7.0,
-  "disponibile": true,
-  "ordine": 0,
-  "created_at": "2026-06-26T17:44:14.703393+00:00"
  }
 ]
