@@ -284,6 +284,15 @@
   .section p strong { color: var(--gold); font-weight: 600; }
 
   /* Menu */
+  .menu-note {
+    margin: 0 0 16px;
+    padding: 9px 13px;
+    font-style: italic;
+    font-size: 0.95rem;
+    color: var(--muted);
+    border: 1px solid rgba(232, 198, 106, 0.25);
+    border-radius: 8px;
+  }
   .menu-category { margin-top: 30px; }
   .menu-category h3 {
     display: flex;
@@ -555,33 +564,15 @@
     return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   }
 
-  async function loadMenu() {
-    const container = document.getElementById('menu-content');
-    let data, error;
-    try {
-      ({ data, error } = await withTimeout(
-        supabase.from('menu_items').select('*').order('categoria').order('ordine').order('nome'),
-        12000
-      ));
-    } catch (e) {
-      container.textContent = 'Errore di connessione nel caricamento del menù. Riprova più tardi.';
-      return;
-    }
-    if (error) {
-      container.textContent = 'Errore nel caricamento del menù.';
-      return;
-    }
-    if (!data.length) {
-      container.textContent = 'Il menù sarà disponibile a breve.';
-      return;
-    }
+  const MENU_CACHE_KEY = 'ponzanello_menu_v1';
 
+  function renderMenu(container, data, note) {
     const byCategory = {};
     for (const item of data) {
       (byCategory[item.categoria] ??= []).push(item);
     }
-
-    container.innerHTML = Object.entries(byCategory).map(([categoria, items]) => `
+    const noteHtml = note ? `<p class="menu-note">${note}</p>` : '';
+    container.innerHTML = noteHtml + Object.entries(byCategory).map(([categoria, items]) => `
       <div class="menu-category">
         <h3>${escapeHtml(categoria)}</h3>
         ${items.map(item => `
@@ -596,6 +587,56 @@
         `).join('')}
       </div>
     `).join('');
+  }
+
+  // Se Supabase non è raggiungibile, mostra l'ultimo menù salvato o la copia statica del sito
+  async function loadMenuFallback(container) {
+    try {
+      const cached = JSON.parse(localStorage.getItem(MENU_CACHE_KEY) || 'null');
+      if (cached && cached.length) {
+        renderMenu(container, cached, 'Connessione assente: stai vedendo l\'ultimo menù salvato sul dispositivo.');
+        return;
+      }
+    } catch (e) {}
+    try {
+      const res = await withTimeout(fetch('menu.json', { cache: 'no-store' }), 8000);
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.length) {
+          renderMenu(container, data, null);
+          return;
+        }
+      }
+    } catch (e) {}
+    container.innerHTML =
+      '<p>Non è stato possibile caricare il menù. Controlla la connessione e riprova.</p>' +
+      '<button class="back-btn" id="menu-retry">↻ Riprova</button>';
+    const retry = document.getElementById('menu-retry');
+    if (retry) retry.addEventListener('click', () => { container.textContent = 'Caricamento...'; loadMenu(); });
+  }
+
+  async function loadMenu() {
+    const container = document.getElementById('menu-content');
+    let data, error;
+    try {
+      ({ data, error } = await withTimeout(
+        supabase.from('menu_items').select('*').order('categoria').order('ordine').order('nome'),
+        12000
+      ));
+    } catch (e) {
+      await loadMenuFallback(container);
+      return;
+    }
+    if (error) {
+      await loadMenuFallback(container);
+      return;
+    }
+    if (!data.length) {
+      container.textContent = 'Il menù sarà disponibile a breve.';
+      return;
+    }
+    try { localStorage.setItem(MENU_CACHE_KEY, JSON.stringify(data)); } catch (e) {}
+    renderMenu(container, data, null);
   }
 
   const authArea = document.getElementById('auth-area');
