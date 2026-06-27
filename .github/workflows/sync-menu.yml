@@ -1,0 +1,50 @@
+name: Sync menu.json
+
+# Tiene aggiornata la copia di riserva menu.json leggendo il menù da Supabase.
+# La pagina usa menu.json solo come fallback quando un visitatore non riesce a
+# raggiungere Supabase dal vivo. La anon key è la stessa già pubblica nel sito.
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'   # ogni 15 minuti (GitHub può ritardare l'esecuzione)
+  workflow_dispatch:          # esecuzione manuale dal tab Actions
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-menu
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch menu from Supabase
+        env:
+          SUPABASE_URL: https://nkxsnjogaslhkgtglkuw.supabase.co
+          SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5reHNuam9nYXNsaGtndGdsa3V3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE5NjQxMDIsImV4cCI6MjA5NzU0MDEwMn0.Yz5lZRUZnsEv_zBybBFAtSPiEwPzbMmFrLdM2TPS0o0
+        run: |
+          set -e
+          curl -fsS -m 30 \
+            "$SUPABASE_URL/rest/v1/menu_items?select=*&order=categoria,ordine,nome" \
+            -H "apikey: $SUPABASE_ANON_KEY" \
+            -o menu.new.json
+          # Deve essere un array JSON con almeno una voce, altrimenti non aggiorna
+          head -c1 menu.new.json | grep -q '\[' || { echo "Risposta non valida (non è un array JSON)"; exit 1; }
+          python3 -c "import json,sys; d=json.load(open('menu.new.json')); sys.exit(0 if isinstance(d,list) and len(d)>0 else 1)"
+          mv menu.new.json menu.json
+
+      - name: Commit if changed
+        run: |
+          if git diff --quiet -- menu.json; then
+            echo "Nessuna modifica al menù."
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add menu.json
+            git commit -m "chore: sync menu.json from Supabase"
+            git push
+          fi
