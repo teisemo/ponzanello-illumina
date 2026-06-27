@@ -22,20 +22,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Fetch menu from Supabase
+      - name: Fetch and sort menu from Supabase
         env:
           SUPABASE_URL: https://nkxsnjogaslhkgtglkuw.supabase.co
           SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5reHNuam9nYXNsaGtndGdsa3V3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE5NjQxMDIsImV4cCI6MjA5NzU0MDEwMn0.Yz5lZRUZnsEv_zBybBFAtSPiEwPzbMmFrLdM2TPS0o0
-        run: |
-          set -e
-          curl -fsS -m 30 \
-            "$SUPABASE_URL/rest/v1/menu_items?select=*&order=categoria,ordine,nome" \
-            -H "apikey: $SUPABASE_ANON_KEY" \
-            -o menu.new.json
-          # Deve essere un array JSON con almeno una voce, altrimenti non aggiorna
-          head -c1 menu.new.json | grep -q '\[' || { echo "Risposta non valida (non è un array JSON)"; exit 1; }
-          python3 -c "import json,sys; d=json.load(open('menu.new.json')); sys.exit(0 if isinstance(d,list) and len(d)>0 else 1)"
-          mv menu.new.json menu.json
+        run: python3 scripts/sync_menu.py
 
       - name: Commit if changed
         run: |

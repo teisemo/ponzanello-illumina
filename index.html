@@ -429,6 +429,9 @@
     border-radius: 8px;
   }
   #auth-area { margin-top: 26px; }
+  #admin-categories { margin-top: 20px; }
+  #admin-area button:disabled { opacity: 0.35; cursor: default; }
+  .cat-order-btns button { margin-right: 4px; padding: 6px 10px; }
   .admin-edit { display: block; }
   .edit-form { width: 100%; }
   .edit-form button[data-cancel] {
@@ -623,28 +626,42 @@
     if (retry) retry.addEventListener('click', () => { container.textContent = 'Caricamento...'; loadMenu(); });
   }
 
+  function sortByCategoryOrder(items, orderMap) {
+    const BIG = Number.MAX_SAFE_INTEGER;
+    return [...items].sort((a, b) => {
+      const oa = orderMap.has(a.categoria) ? orderMap.get(a.categoria) : BIG;
+      const ob = orderMap.has(b.categoria) ? orderMap.get(b.categoria) : BIG;
+      if (oa !== ob) return oa - ob;
+      if (a.categoria !== b.categoria) return a.categoria.localeCompare(b.categoria);
+      if ((a.ordine || 0) !== (b.ordine || 0)) return (a.ordine || 0) - (b.ordine || 0);
+      return a.nome.localeCompare(b.nome);
+    });
+  }
+
   async function loadMenu() {
     const container = document.getElementById('menu-content');
-    let data, error;
+    let itemsRes, catRes;
     try {
-      ({ data, error } = await withTimeout(
-        supabasePublic.from('menu_items').select('*').order('categoria').order('ordine').order('nome'),
-        12000
-      ));
+      [itemsRes, catRes] = await withTimeout(Promise.all([
+        supabasePublic.from('menu_items').select('*'),
+        supabasePublic.from('menu_categorie').select('nome, ordine')
+      ]), 12000);
     } catch (e) {
       await loadMenuFallback(container);
       return;
     }
-    if (error) {
+    if (itemsRes.error || !itemsRes.data) {
       await loadMenuFallback(container);
       return;
     }
-    if (!data.length) {
+    if (!itemsRes.data.length) {
       container.textContent = 'Il menù sarà disponibile a breve.';
       return;
     }
-    try { localStorage.setItem(MENU_CACHE_KEY, JSON.stringify(data)); } catch (e) {}
-    renderMenu(container, data, null);
+    const orderMap = new Map((catRes && catRes.data ? catRes.data : []).map(r => [r.nome, r.ordine]));
+    const sorted = sortByCategoryOrder(itemsRes.data, orderMap);
+    try { localStorage.setItem(MENU_CACHE_KEY, JSON.stringify(sorted)); } catch (e) {}
+    renderMenu(container, sorted, null);
   }
 
   const authArea = document.getElementById('auth-area');
@@ -683,6 +700,7 @@
         <label><input type="checkbox" name="disponibile" checked> Disponibile</label>
         <button type="submit">Aggiungi</button>
       </form>
+      <div id="admin-categories"></div>
       <div id="admin-list"></div>
     `;
     document.getElementById('add-item-form').addEventListener('submit', async e => {
@@ -701,6 +719,50 @@
       await renderAdminList();
     });
     renderAdminList();
+    renderCategoryOrder();
+  }
+
+  async function renderCategoryOrder() {
+    const box = document.getElementById('admin-categories');
+    if (!box) return;
+    const [catsRes, itemsRes] = await Promise.all([
+      supabase.from('menu_categorie').select('*'),
+      supabase.from('menu_items').select('categoria')
+    ]);
+    const orderMap = new Map((catsRes.data || []).map(c => [c.nome, c.ordine]));
+    const distinct = [...new Set((itemsRes.data || []).map(i => i.categoria))];
+    distinct.sort((a, b) => {
+      const oa = orderMap.has(a) ? orderMap.get(a) : Number.MAX_SAFE_INTEGER;
+      const ob = orderMap.has(b) ? orderMap.get(b) : Number.MAX_SAFE_INTEGER;
+      return oa - ob || a.localeCompare(b);
+    });
+    box.innerHTML = '<h3>Ordine categorie</h3>' + distinct.map((c, i) => `
+      <div class="menu-item">
+        <span>${i + 1}. ${escapeHtml(c)}</span>
+        <span class="cat-order-btns">
+          <button data-cat-up="${escapeHtml(c)}" ${i === 0 ? 'disabled' : ''}>▲</button>
+          <button data-cat-down="${escapeHtml(c)}" ${i === distinct.length - 1 ? 'disabled' : ''}>▼</button>
+        </span>
+      </div>
+    `).join('');
+    box.querySelectorAll('[data-cat-up]').forEach(btn => {
+      btn.addEventListener('click', () => moveCategory(distinct, btn.dataset.catUp, -1));
+    });
+    box.querySelectorAll('[data-cat-down]').forEach(btn => {
+      btn.addEventListener('click', () => moveCategory(distinct, btn.dataset.catDown, 1));
+    });
+  }
+
+  async function moveCategory(ordered, nome, delta) {
+    const idx = ordered.indexOf(nome);
+    const j = idx + delta;
+    if (idx < 0 || j < 0 || j >= ordered.length) return;
+    const arr = [...ordered];
+    [arr[idx], arr[j]] = [arr[j], arr[idx]];
+    const rows = arr.map((n, i) => ({ nome: n, ordine: i }));
+    await supabase.from('menu_categorie').upsert(rows, { onConflict: 'nome' });
+    await loadMenu();
+    await renderCategoryOrder();
   }
 
   async function renderAdminList(editingId = null) {
