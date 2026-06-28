@@ -518,6 +518,7 @@
     border-radius: 8px;
   }
   #auth-area { margin-top: 26px; }
+  .admin-toolbar { margin-bottom: 16px; }
   #admin-categories { margin-top: 20px; }
   #admin-area button:disabled { opacity: 0.35; cursor: default; }
   .cat-order-btns button { margin-right: 4px; padding: 6px 10px; }
@@ -907,6 +908,7 @@
     document.getElementById('logout-btn').addEventListener('click', () => supabase.auth.signOut());
     adminArea.style.display = 'block';
     adminArea.innerHTML = `
+      <div class="admin-toolbar"><button type="button" id="export-pdf">⬇ Esporta menù in PDF</button></div>
       <h3>Aggiungi voce al menù</h3>
       <form id="add-item-form">
         <input name="categoria" placeholder="Categoria (es. Primi)" required>
@@ -934,6 +936,7 @@
       await loadMenu();
       await renderAdminList();
     });
+    document.getElementById('export-pdf').addEventListener('click', e => exportMenuPdf(e.currentTarget));
     renderAdminList();
     renderCategoryOrder();
   }
@@ -1052,6 +1055,125 @@
         await renderAdminList();
       });
     });
+  }
+
+  // --- Esportazione PDF del menù (libreria caricata su richiesta) ---
+  let jsPdfPromise = null;
+  function loadJsPdf() {
+    if (window.jspdf) return Promise.resolve();
+    if (jsPdfPromise) return jsPdfPromise;
+    jsPdfPromise = new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js';
+      s.onload = resolve;
+      s.onerror = () => reject(new Error('libreria PDF non caricata'));
+      document.head.appendChild(s);
+    });
+    return jsPdfPromise;
+  }
+  function loadImage(src) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = reject;
+      img.src = src;
+    });
+  }
+
+  async function exportMenuPdf(btn) {
+    const oldText = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = 'Genero PDF…';
+    try {
+      await loadJsPdf();
+      const [itemsRes, catRes] = await Promise.all([
+        supabasePublic.from('menu_items').select('*'),
+        supabasePublic.from('menu_categorie').select('nome, ordine')
+      ]);
+      if (itemsRes.error || !itemsRes.data || !itemsRes.data.length) {
+        throw new Error('menù non disponibile');
+      }
+      const orderMap = new Map((catRes && catRes.data ? catRes.data : []).map(r => [r.nome, r.ordine]));
+      const items = sortByCategoryOrder(itemsRes.data, orderMap);
+      const logo = await loadImage('logo sfondo bianco senza sfondo.png').catch(() => null);
+
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+      const pageW = 210, pageH = 297, margin = 16;
+      let y = margin;
+
+      if (logo && logo.naturalWidth) {
+        const targetW = 28;
+        const ratio = logo.naturalHeight / logo.naturalWidth;
+        // ridimensiono e appiattisco su bianco via canvas per non gonfiare il PDF
+        const cw = 440, ch = Math.round(cw * ratio);
+        const canvas = document.createElement('canvas');
+        canvas.width = cw; canvas.height = ch;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, cw, ch);
+        ctx.drawImage(logo, 0, 0, cw, ch);
+        doc.addImage(canvas.toDataURL('image/jpeg', 0.9), 'JPEG', (pageW - targetW) / 2, y, targetW, targetW * ratio);
+        y += targetW * ratio + 4;
+      }
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(35, 35, 35);
+      doc.setFontSize(20);
+      doc.text('PONZANELLO ILLUMINÀ', pageW / 2, y, { align: 'center' });
+      y += 8;
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(12);
+      doc.setTextColor(120, 90, 30);
+      doc.text('Listino prezzi  ·  24 - 25 Luglio', pageW / 2, y, { align: 'center' });
+      y += 6;
+      doc.setDrawColor(184, 144, 47);
+      doc.setLineWidth(0.6);
+      doc.line(margin, y, pageW - margin, y);
+      y += 9;
+
+      const groups = [];
+      const idx = {};
+      for (const it of items) {
+        if (!(it.categoria in idx)) { idx[it.categoria] = groups.length; groups.push({ cat: it.categoria, items: [] }); }
+        groups[idx[it.categoria]].items.push(it);
+      }
+      const ensureSpace = need => { if (y + need > pageH - margin) { doc.addPage(); y = margin; } };
+
+      for (const g of groups) {
+        ensureSpace(16);
+        doc.setFillColor(92, 31, 42);
+        doc.rect(margin, y, pageW - 2 * margin, 8, 'F');
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(12);
+        doc.setTextColor(232, 198, 106);
+        doc.text(g.cat.toUpperCase(), margin + 3, y + 5.6);
+        y += 12;
+        for (const it of g.items) {
+          ensureSpace(8);
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(11);
+          doc.setTextColor(35, 35, 35);
+          const name = it.disponibile ? it.nome : `${it.nome}  (esaurito)`;
+          doc.text(name, margin + 2, y, { maxWidth: pageW - 2 * margin - 34 });
+          doc.text(`${Number(it.prezzo).toFixed(2)} sesterzi`, pageW - margin - 2, y, { align: 'right' });
+          if (it.descrizione) {
+            y += 4.5;
+            doc.setFontSize(9);
+            doc.setTextColor(120, 120, 120);
+            doc.text(it.descrizione, margin + 4, y);
+          }
+          y += 7;
+        }
+        y += 3;
+      }
+
+      doc.save('menu-ponzanello-illumina.pdf');
+    } catch (e) {
+      alert('Impossibile generare il PDF: ' + (e.message || e));
+    } finally {
+      btn.disabled = false;
+      btn.textContent = oldText;
+    }
   }
 
   async function refreshAuthUI() {
