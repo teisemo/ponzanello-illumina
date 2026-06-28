@@ -1137,43 +1137,71 @@
         if (!(it.categoria in idx)) { idx[it.categoria] = groups.length; groups.push({ cat: it.categoria, items: [] }); }
         groups[idx[it.categoria]].items.push(it);
       }
-      const usableH = pageH - 2 * margin;
-      const itemHeight = it => 7 + (it.descrizione ? 4.5 : 0);
+      // --- impaginazione su due colonne, categorie mai spezzate ---
+      const colGap = 8;
+      const colW = (pageW - 2 * margin - colGap) / 2;
+      const colX = [margin, margin + colW + colGap];
+      const colBottom = pageH - margin;
+      const itemFont = 9.5, nameLineH = 4.5, descFont = 8, descLineH = 3.8;
+      const catBarH = 7.5, afterBar = 3, itemPad = 2.4, catGap = 4;
+
+      const priceStr = it => `${Number(it.prezzo).toFixed(2)} sesterzi`;
+      const measureItem = it => {
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(itemFont);
+        const priceW = doc.getTextWidth(priceStr(it));
+        const nameMaxW = Math.max(26, colW - priceW - 5);
+        const name = it.disponibile ? it.nome : `${it.nome}  (esaurito)`;
+        const nameLines = doc.splitTextToSize(name, nameMaxW);
+        let descLines = [];
+        if (it.descrizione) {
+          doc.setFontSize(descFont);
+          descLines = doc.splitTextToSize(it.descrizione, colW - 4);
+        }
+        const h = nameLines.length * nameLineH + descLines.length * descLineH + itemPad;
+        return { h, nameLines, descLines };
+      };
+      const measureCat = g =>
+        catBarH + afterBar + g.items.reduce((s, it) => s + measureItem(it).h, 0) + catGap;
+
+      let colIdx = 0;
+      let colTop = y;          // su pagina 1 le colonne iniziano sotto l'intestazione
+      let cy = colTop;
+      const advance = () => {
+        if (colIdx === 0) { colIdx = 1; cy = colTop; }
+        else { doc.addPage(); colIdx = 0; colTop = margin; cy = margin; }
+      };
 
       for (const g of groups) {
-        // altezza dell'intera categoria (barra + tutte le voci)
-        const need = 12 + g.items.reduce((s, it) => s + itemHeight(it), 0);
-        // tieni la categoria tutta sulla stessa pagina: se non entra nello spazio
-        // rimasto (e ci sta in una pagina intera), vai a pagina nuova prima di iniziare
-        if (y + need > pageH - margin && need <= usableH) {
-          doc.addPage();
-          y = margin;
-        }
+        const need = measureCat(g);
+        // passa alla colonna/pagina successiva finché la categoria ci sta tutta intera
+        while (cy + need > colBottom && need <= colBottom - margin) advance();
+        let x = colX[colIdx];
         doc.setFillColor(92, 31, 42);
-        doc.rect(margin, y, pageW - 2 * margin, 8, 'F');
+        doc.rect(x, cy, colW, catBarH, 'F');
         doc.setFont('helvetica', 'bold');
-        doc.setFontSize(12);
+        doc.setFontSize(10.5);
         doc.setTextColor(232, 198, 106);
-        doc.text(g.cat.toUpperCase(), margin + 3, y + 5.6);
-        y += 12;
+        doc.text(g.cat.toUpperCase(), x + 2.5, cy + 5.2);
+        cy += catBarH + afterBar;
         for (const it of g.items) {
-          // solo per categorie più alte di una pagina intera (qui non capita): spezza
-          if (y + itemHeight(it) > pageH - margin) { doc.addPage(); y = margin; }
+          const m = measureItem(it);
+          if (cy + m.h > colBottom) { advance(); x = colX[colIdx]; }
+          const cx = colX[colIdx];
           doc.setFont('helvetica', 'normal');
-          doc.setFontSize(11);
+          doc.setFontSize(itemFont);
           doc.setTextColor(35, 35, 35);
-          const name = it.disponibile ? it.nome : `${it.nome}  (esaurito)`;
-          doc.text(name, margin + 2, y, { maxWidth: pageW - 2 * margin - 34 });
-          doc.text(`${Number(it.prezzo).toFixed(2)} sesterzi`, pageW - margin - 2, y, { align: 'right' });
-          if (it.descrizione) {
-            y += 4.5;
-            doc.setFontSize(9);
+          let ly = cy;
+          for (const ln of m.nameLines) { doc.text(ln, cx + 1.5, ly); ly += nameLineH; }
+          doc.text(priceStr(it), cx + colW - 1.5, cy, { align: 'right' });
+          if (m.descLines.length) {
+            doc.setFontSize(descFont);
             doc.setTextColor(120, 120, 120);
-            doc.text(it.descrizione, margin + 4, y);
+            for (const ln of m.descLines) { doc.text(ln, cx + 3, ly); ly += descLineH; }
           }
-          y += 7;
+          cy = ly + itemPad;
         }
-        y += 3;
+        cy += catGap;
       }
 
       doc.save('menu-ponzanello-illumina.pdf');
